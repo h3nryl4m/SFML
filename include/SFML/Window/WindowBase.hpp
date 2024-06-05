@@ -180,37 +180,52 @@ public:
     /// \brief Pop the next event from the front of the FIFO event queue, if any, and return it
     ///
     /// This function is not blocking: if there's no pending event then
-    /// it will return an empty event. Note that more than one event
+    /// it will return a `std::nullopt`. Note that more than one event
     /// may be present in the event queue, thus you should always call
     /// this function in a loop to make sure that you process every
     /// pending event.
     /// \code
-    /// while (const auto event = window.pollEvent())
+    /// while (const std::optional<sf::Event> event = window.pollEvent())
     /// {
     ///    // process event...
     /// }
     /// \endcode
     ///
-    /// \return The event; will be `Empty` (convertible to `false`) if no events are pending
+    /// \return The event, otherwise `std::nullopt` if no events are pending
     ///
     /// \see waitEvent
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] Event pollEvent();
+    [[nodiscard]] std::optional<Event> pollEvent();
 
     ////////////////////////////////////////////////////////////
     /// \brief Wait for an event and return it
     ///
     /// This function is blocking: if there's no pending event then
-    /// it will wait until an event is received. After this function
-    /// returns if no error occurred, the returned event will not be
-    /// empty. This function is typically used when you have a thread
-    /// that is dedicated to events handling: you want to make this
-    /// thread sleep as long as no new event is received.
+    /// it will wait until an event is received. This function is typically
+    /// used when you have a thread that is dedicated to events handling:
+    /// you want to make this thread sleep as long as no new event is received.
     /// \code
-    /// if (const auto event = window.waitEvent())
+    /// while (const sf::Event event = window.waitEvent())
     /// {
     ///    // process event...
+    /// }
+    /// \endcode
+    ///
+    /// Note that the event handling loop should `break` after the window
+    /// is closed as a result of event handling to prevent `waitEvent` from
+    /// being invoked on a closed window.
+    /// \code
+    /// while (const sf::Event event = window.waitEvent())
+    /// {
+    ///    // Request for closing the window
+    ///    if (event.is<sf::Event::Closed>())
+    ///    {
+    ///        window.close();
+    ///        break;
+    ///    }
+    ///
+    ///    // ...
     /// }
     /// \endcode
     ///
@@ -557,11 +572,14 @@ private:
 /// while (window.isOpen())
 /// {
 ///    // Event processing
-///    while (const auto event = window.pollEvent())
+///    while (const std::optional event = window.pollEvent())
 ///    {
 ///        // Request for closing the window
-///        if (event.is<sf::Event::Closed>())
+///        if (event->is<sf::Event::Closed>())
+///        {
 ///            window.close();
+///            break;
+///        }
 ///    }
 ///
 ///    // Do things with the window here...

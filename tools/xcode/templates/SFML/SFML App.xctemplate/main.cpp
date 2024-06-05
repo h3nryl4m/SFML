@@ -52,19 +52,21 @@ int main()
     while (window.isOpen())
     {
         // Process events
-        while (const auto event = window.pollEvent())
+        while (const std::optional event = window.pollEvent())
         {
             // Close window: exit
-            if (event.is<sf::Event::Closed>())
+            if (event->is<sf::Event::Closed>())
             {
                 window.close();
+                break;
             }
 
             // Escape pressed: exit
-            if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>();
+            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>();
                 keyPressed && keyPressed->code == sf::Keyboard::Key::Escape)
             {
                 window.close();
+                break;
             }
         }
 

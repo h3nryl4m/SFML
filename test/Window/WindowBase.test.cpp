@@ -108,12 +108,6 @@ TEST_CASE("[Window] sf::WindowBase", runDisplayTests())
         CHECK(!windowBase.pollEvent());
     }
 
-    SECTION("waitEvent()")
-    {
-        sf::WindowBase windowBase;
-        CHECK(!windowBase.waitEvent());
-    }
-
     SECTION("Set/get position")
     {
         sf::WindowBase windowBase;

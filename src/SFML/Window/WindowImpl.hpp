@@ -128,14 +128,14 @@ public:
     /// The \a block parameter controls the behavior of the function
     /// if no event is available: if it is true then the function
     /// doesn't return until a new event is triggered; otherwise it
-    /// returns an empty event to indicate that no event is available.
+    /// returns `std::nullopt` to indicate that no event is available.
     ///
-    /// \param block Use true to block the thread until an event arrives
+    /// \param block Use `true` to block the thread until an event arrives
     ///
-    /// \return The event; can be `Empty` (convertible to `false`) if not blocking
+    /// \return The event; can be `std::nullopt` (convertible to `false`) if not blocking
     ///
     ////////////////////////////////////////////////////////////
-    Event popEvent(bool block);
+    std::optional<Event> popEvent(bool block);
 
     ////////////////////////////////////////////////////////////
     /// \brief Get the OS-specific handle of the window

@@ -201,50 +201,52 @@ int main()
         while (window.isOpen())
         {
             // Process events
-            while (const auto event = window.pollEvent())
+            while (const std::optional event = window.pollEvent())
             {
                 // Close window: exit
-                if (event.is<sf::Event::Closed>())
+                if (event->is<sf::Event::Closed>())
                 {
                     exit = true;
                     window.close();
+                    break;
                 }
 
-                // Escape key: exit
-                if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>();
-                    keyPressed && keyPressed->code == sf::Keyboard::Key::Escape)
+                // Key pressed
+                if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
                 {
-                    exit = true;
-                    window.close();
-                }
-
-                // Return key: toggle mipmapping
-                if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>();
-                    keyPressed && keyPressed->code == sf::Keyboard::Key::Enter)
-                {
-                    if (mipmapEnabled)
+                    if (keyPressed->code == sf::Keyboard::Key::Escape)
                     {
-                        // We simply reload the texture to disable mipmapping
-                        texture = sf::Texture::loadFromFile(resourcesDir() / "logo.png").value();
-
-                        mipmapEnabled = false;
+                        // Escape key: exit
+                        exit = true;
+                        window.close();
+                        break;
                     }
-                    else if (texture.generateMipmap())
+                    else if (keyPressed->code == sf::Keyboard::Key::Enter)
                     {
-                        mipmapEnabled = true;
-                    }
-                }
+                        // Return key: toggle mipmapping
+                        if (mipmapEnabled)
+                        {
+                            // We simply reload the texture to disable mipmapping
+                            texture = sf::Texture::loadFromFile(resourcesDir() / "logo.png").value();
 
-                // Space key: toggle sRGB conversion
-                if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>();
-                    keyPressed && keyPressed->code == sf::Keyboard::Key::Space)
-                {
-                    sRgb = !sRgb;
-                    window.close();
+                            mipmapEnabled = false;
+                        }
+                        else if (texture.generateMipmap())
+                        {
+                            mipmapEnabled = true;
+                        }
+                    }
+                    else if (keyPressed->code == sf::Keyboard::Key::Space)
+                    {
+                        // Space key: toggle sRGB conversion
+                        sRgb = !sRgb;
+                        window.close();
+                        break;
+                    }
                 }
 
                 // Adjust the viewport when the window is resized
-                if (const auto* resized = event.getIf<sf::Event::Resized>())
+                if (const auto* resized = event->getIf<sf::Event::Resized>())
                 {
                     const sf::Vector2u textureSize = backgroundTexture.getSize();
 

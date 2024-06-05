@@ -43,6 +43,7 @@
 #include <vector>
 
 #include <cassert>
+#include <cstdlib>
 
 
 namespace
@@ -146,11 +147,15 @@ bool WindowBase::isOpen() const
 
 
 ////////////////////////////////////////////////////////////
-Event WindowBase::pollEvent()
+std::optional<Event> WindowBase::pollEvent()
 {
-    Event event;
-    if (m_impl && (event = m_impl->popEvent(false)))
-        filterEvent(event);
+    if (m_impl == nullptr)
+        return std::nullopt;
+
+    std::optional<sf::Event> event = m_impl->popEvent(false /* non-blocking */);
+    if (event.has_value())
+        filterEvent(*event);
+
     return event;
 }
 
@@ -158,10 +163,20 @@ Event WindowBase::pollEvent()
 ////////////////////////////////////////////////////////////
 Event WindowBase::waitEvent()
 {
-    Event event;
-    if (m_impl && (event = m_impl->popEvent(true)))
-        filterEvent(event);
-    return event;
+    if (m_impl == nullptr)
+    {
+        err() << "Fatal error: `waitEvent` invoked on destroyed window -- did you forget a `break` after "
+                 "`window.close()` in your event handling loop?"
+              << std::endl;
+
+        std::abort();
+    }
+
+    std::optional<sf::Event> event = m_impl->popEvent(true /* blocking */);
+    assert(event.has_value()); // `popEvent` in blocking mode guarantees to return an event
+
+    filterEvent(*event);
+    return *event;
 }
 
 
