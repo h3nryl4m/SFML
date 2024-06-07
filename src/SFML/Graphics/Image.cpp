@@ -97,6 +97,8 @@ namespace sf
 ////////////////////////////////////////////////////////////
 Image::Image(const Vector2u& size, const Color& color)
 {
+    m_format = ImageFormat::RGBA8;
+
     if (size.x && size.y)
     {
         // Create a new pixel buffer first for exception safety's sake
@@ -118,6 +120,7 @@ Image::Image(const Vector2u& size, const Color& color)
 
         // Assign the new size
         m_size = size;
+
     }
     else
     {
@@ -131,12 +134,27 @@ Image::Image(const Vector2u& size, const Color& color)
 
 
 ////////////////////////////////////////////////////////////
-Image::Image(const Vector2u& size, const std::uint8_t* pixels)
+Image::Image(const Vector2u& size, const std::uint8_t* pixels, ImageFormat format)
 {
+    m_format = format;
+    int len = size.x * size.y;
+    switch (format)
+    {
+        case ImageFormat::RGBA8:
+        case ImageFormat::DXT3:
+        case ImageFormat::DXT5:
+            len *= 4;
+            break;
+        case ImageFormat::RGBA4444:
+        case ImageFormat::RGB565:
+            len *= 2;
+            break;
+    }
+
     if (pixels && size.x && size.y)
     {
         // Create a new pixel buffer first for exception safety's sake
-        std::vector<std::uint8_t> newPixels(pixels, pixels + size.x * size.y * 4);
+        std::vector<std::uint8_t> newPixels(pixels, pixels + len);
 
         // Commit the new pixel buffer
         m_pixels.swap(newPixels);
@@ -156,7 +174,7 @@ Image::Image(const Vector2u& size, const std::uint8_t* pixels)
 
 
 ////////////////////////////////////////////////////////////
-Image::Image(Vector2u size, std::vector<std::uint8_t>&& pixels) : m_size(size), m_pixels(std::move(pixels))
+Image::Image(Vector2u size, std::vector<std::uint8_t>&& pixels) : m_size(size), m_pixels(std::move(pixels)), m_format(ImageFormat::RGBA8)
 {
 }
 

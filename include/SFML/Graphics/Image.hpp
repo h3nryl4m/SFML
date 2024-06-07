@@ -47,6 +47,14 @@ namespace sf
 {
 class InputStream;
 
+enum class ImageFormat {
+    RGBA8,
+    RGBA4444,
+    RGB565,
+    DXT3,
+    DXT5
+};
+
 ////////////////////////////////////////////////////////////
 /// \brief Class for loading, manipulating and saving images
 ///
@@ -73,9 +81,10 @@ public:
     ///
     /// \param size   Width and height of the image
     /// \param pixels Array of pixels to copy to the image
+    /// \param format OpenGL texture format
     ///
     ////////////////////////////////////////////////////////////
-    Image(const Vector2u& size, const std::uint8_t* pixels);
+    Image(const Vector2u& size, const std::uint8_t* pixels, ImageFormat format=ImageFormat::RGBA8);
 
     ////////////////////////////////////////////////////////////
     /// \brief Load the image from a file on disk
@@ -289,6 +298,7 @@ private:
     ////////////////////////////////////////////////////////////
     Vector2u                  m_size;   //!< Image size
     std::vector<std::uint8_t> m_pixels; //!< Pixels of the image
+    ImageFormat               m_format; //!< Format of the pixels
 };
 
 } // namespace sf
